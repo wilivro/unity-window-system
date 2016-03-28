@@ -24,7 +24,7 @@ public class QuestJournal : MonoBehaviour
 
 		int i = 0;
 		GameObject a;
-		foreach(Quest qt in Player.questLog){
+		foreach(Quest qt in Rpg.Player.questLog){
 			a = Instantiate(questJournalSelect);
 			Toggle at = a.GetComponent<Toggle>();
 

@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerBehaviour : MonoBehaviour {
+public class Book : MonoBehaviour {
 
 	// Use this for initialization
-	Rpg.Player player;
-	void Awake () {
-		player = new Rpg.Player("Teste");
-		player.Save();
+	void Start () {
+	
 	}
 	
 	// Update is called once per frame

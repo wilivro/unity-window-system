@@ -1,0 +1,8 @@
+{
+	"name": "Quest 2",
+	"description": "This a 2nd test for quest journal",
+	"exp": 123,
+	"icon": "icon",
+	"image": "image",
+	"rewardName" : ["potion","potion"]
+}

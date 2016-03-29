@@ -3,6 +3,6 @@
 	"description": "This item increase your mana up to 100 points",
 	"iconIndex": 30,
 	"imageName": "potion",
-	"acumulative": true,
+	"acumulative": false,
 	"consumible": true
 }

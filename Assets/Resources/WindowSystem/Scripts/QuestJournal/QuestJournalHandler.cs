@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Rpg;
 
 public class QuestJournalHandler : Handler, ISelectable {
 

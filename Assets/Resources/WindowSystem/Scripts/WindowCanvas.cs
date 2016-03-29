@@ -7,7 +7,7 @@ public class WindowCanvas : MonoBehaviour {
 	// Use this for initialization
 	public static Scene.Language language;
 	Window.Journal 	journal;
-	Window.Inventory inventory;
+	public static Window.Inventory inventory;
 
 	void Start () {
 		language = new Scene.Language("pt-br");

@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Rpg;
 
 public class QuestJournal : MonoBehaviour
 {

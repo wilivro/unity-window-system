@@ -6,6 +6,42 @@ using System.Collections.Generic;
 
 namespace Rpg
 {
+	public class Item
+	{
+		public string name;
+		public string description;
+		public int iconIndex;
+		public string imageName;
+		public int qtd;
+		public bool acumulative;
+		public bool consumible;
+		public bool unique;
+		public string[] book;
+
+		Sprite[] icons;
+		public Sprite icon;
+		Sprite[] images;
+		public Sprite image;
+
+
+		public Item(string _name) {
+			string path = "Items/ItemSource/Items/"+_name;
+			TextAsset questFile = Resources.Load(path) as TextAsset;
+	 		JsonUtility.FromJsonOverwrite(questFile.text, this);
+	 		icons = Resources.LoadAll<Sprite>("Items/ItemSource/Images/icons");
+	 		images = Resources.LoadAll<Sprite>("Items/ItemSource/Images/"+imageName);
+
+	 		icon = icons[iconIndex];
+	 		image = images[0];
+	 		
+	 		qtd = 1;
+		}
+
+		public override string ToString() {
+			return name;
+		}
+	}
+
 	public class Inventory
 	{
 		public List<Item> items;
@@ -43,12 +79,27 @@ namespace Rpg
 		}
 
 		public Item Add(Item i, int qtd){
-			i.qtd = qtd;
-			return Add(i);
+			if(i.acumulative){
+				i.qtd = qtd;
+				return Add(i);
+			} else {
+				for(int n = 0; n < qtd; n++){
+					Add(i);
+				}
+			}
+
+			return i;
 		}
 
-		public Item Remove(Item i) {
+		public Item Remove(Item i, int qtd = 1) {
 			Item it = items.Find(itt => itt.name == i.name);
+
+			if(it != null && it.acumulative && it.qtd > 1){
+				it.qtd -= qtd;
+				if(it.qtd <=0) items.Remove(it);
+				return it;
+			}
+
 			if(it != null) items.Remove(i);
 
 			return it;
@@ -62,6 +113,31 @@ namespace Rpg
 			gold += _add;
 
 			return gold;
+		}
+	}
+
+	public class Quest
+	{
+		public string name;
+		public string description;
+		public float exp;
+		public string icon;
+		public string image;
+		public List<string> rewardName;
+		public List<Item> reward;
+		public int index;
+
+		public Quest(int questIndex) {
+			string path = "Quests/Quests/quest"+questIndex;
+
+			TextAsset questFile = Resources.Load(path) as TextAsset;
+
+	 		JsonUtility.FromJsonOverwrite(questFile.text, this);
+	 		index = questIndex;
+		}
+
+		public override string ToString() {
+			return name;
 		}
 	}
 

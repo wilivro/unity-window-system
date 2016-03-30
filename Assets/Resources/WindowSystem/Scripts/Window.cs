@@ -8,11 +8,13 @@ using Rpg;
 namespace Window
 {
 
+
 	public class WindowBase //BaseClass
 	{
 		public GameObject prefab;
 		public GameObject instance;
 		public Transform myCanvas;
+		public static WindowBase openedNow = null;
 
 		bool opened;
 
@@ -25,9 +27,24 @@ namespace Window
 			opened = false;
 		}
 
-		public virtual void Open() {
+		public void StandAlone() {
+			Debug.Log(openedNow);
+			try
+			{
+				openedNow.Close();
+				
+			} catch {
+
+			}
+			openedNow = this;
+			
+			
+		}
+
+		public virtual void Open(bool preserveParent = false) {
 			if(prefab == null) return;
 			if(opened) return;
+			if(!preserveParent) StandAlone();
 
 			instance = UnityEngine.Object.Instantiate(prefab);
 			RectTransform rt = instance.GetComponent<RectTransform>();
@@ -35,10 +52,11 @@ namespace Window
 			opened = true;
 		}
 
-		public virtual void Close() {
+		public virtual void Close(bool preserveParent = false) {
 			if(instance == null) return;
 			UnityEngine.Object.Destroy(instance);
 			opened = false;
+			if(!preserveParent) openedNow = null;
 		}
 
 		public void Toggle() {
@@ -52,10 +70,95 @@ namespace Window
 
 	public class Journal : WindowBase
 	{
+		GameObject questJournalSelect;
+		Transform tabs;
+		GameObject space;
+		RectTransform myRt;
+		ToggleGroup tg;
+		RectTransform pane;
+		GameObject questPane;
+
 		public Journal(Transform _canvas) : base(_canvas) {
 			prefab = Resources.Load("WindowSystem/Prefabs/QuestJournal/QuestJournal") as GameObject;
-			prefab.transform.Find("Name").Find("Text").GetComponent<UnityEngine.UI.Text>().text = WindowCanvas.language.journal;
+			
+			prefab
+				.transform.Find("Name")
+				.Find("Text")
+				.GetComponent<Text>()
+				.text = WindowCanvas.language.journal;
+
+			questJournalSelect = Resources.Load("WindowSystem/Prefabs/QuestJournal/QuestJournalSelect") as GameObject;
+			space = Resources.Load("WindowSystem/Prefabs/QuestJournal/Space") as GameObject;
+			questPane = Resources.Load("WindowSystem/Prefabs/QuestJournal/QuestJournalPane") as GameObject;
 		}
+
+		public override void Open(bool preserveParent = false) {
+			base.Open();
+			myRt = instance.GetComponent<UnityEngine.RectTransform>();
+			tg = instance.GetComponent<ToggleGroup>();
+
+			instance
+				.transform.Find("Close")
+				.GetComponent<Button>()
+				.onClick.AddListener(delegate {Close();});
+
+			tabs = myRt.Find("Scroll View").Find("Viewport").Find("Tabs");
+			pane = myRt.Find("Panel").GetComponent<RectTransform>();
+
+			LoadJournal();
+		}
+
+		void LoadJournal() {
+			int i = 0;
+			GameObject a;
+
+			UnityEngine.RectTransform rt;
+			foreach(Quest qt in Player.questLog){
+				a = UnityEngine.Object.Instantiate(questJournalSelect);
+				Toggle at = a.GetComponent<Toggle>();
+
+				at.group = tg;
+				at.isOn = i++ == 0? true : false;
+
+				rt = a.GetComponent<RectTransform>();
+				rt.SetParent(tabs, false);
+
+				ConfigSelectToggle(at, qt);
+				
+			}
+
+			a = UnityEngine.Object.Instantiate(space);
+			rt = a.GetComponent<RectTransform>();
+			rt.SetParent(tabs, false);
+		}
+
+		void ConfigSelectToggle(Toggle at, Quest qt) {
+			RectTransform rt = at.GetComponent<RectTransform>();
+			rt.Find("Handler").Find("Text").GetComponent<Text>().text = qt.name;
+			if(at.isOn) InstantiateQuestPane(false, qt);
+			at.onValueChanged.AddListener(delegate {InstantiateQuestPane(!at.isOn, qt);});
+		}
+
+		public void InstantiateQuestPane(bool selected, Quest quest){
+			if(selected) return;
+			//Removing All
+			foreach (RectTransform t in pane) {
+			    	UnityEngine.Object.Destroy(t.gameObject);
+		 	}
+
+			GameObject a = UnityEngine.Object.Instantiate(questPane);
+			RectTransform rt = a.GetComponent<RectTransform>();
+			rt.SetParent(pane, false);
+			
+			RectTransform content = rt.Find("Viewport").Find("Content") as RectTransform;
+			content.Find("QuestName").GetComponent<Text>().text = quest.name;
+			content.Find("QuestDescription").GetComponent<Text>().text = quest.description;
+			//content.Find("Image").GetComponent<Image>().sprite = quest.description;
+			RectTransform reward = content.Find("Reward") as RectTransform;
+			reward.Find("Exp").GetComponent<Text>().text = quest.exp+" exp";
+
+		}
+
 	};
 
 	public class Inventory : WindowBase
@@ -72,8 +175,8 @@ namespace Window
 
 		public Inventory(Transform _canvas) : base(_canvas) {
 			prefab = Resources.Load("WindowSystem/Prefabs/Inventory/Inventory") as GameObject;
-			prefab.transform.Find("Name").Find("Text").GetComponent<UnityEngine.UI.Text>().text = WindowCanvas.language.inventory;
-			prefab.transform.Find("Gold").Find("Label").GetComponent<UnityEngine.UI.Text>().text = WindowCanvas.language.gold;
+			prefab.transform.Find("Name").Find("Text").GetComponent<Text>().text = WindowCanvas.language.inventory;
+			prefab.transform.Find("Gold").Find("Label").GetComponent<Text>().text = WindowCanvas.language.gold;
 			slot = Resources.Load("WindowSystem/Prefabs/Inventory/Slot") as GameObject;
 			item = Resources.Load("WindowSystem/Prefabs/Inventory/Item") as GameObject;
 			qtd = Resources.Load("WindowSystem/Prefabs/Inventory/QtdInput") as GameObject;
@@ -92,16 +195,16 @@ namespace Window
 			qtdInstance = UnityEngine.Object.Instantiate(qtd);
 			qtdInstance.transform.SetParent(instance.transform, false);
 
-			UnityEngine.UI.InputField field = qtdInstance.transform.Find("InputField").gameObject
-				.GetComponent<UnityEngine.UI.InputField>();
+			InputField field = qtdInstance.transform.Find("InputField").gameObject
+				.GetComponent<InputField>();
 
 			field.text = it.qtd.ToString();
 			field.Select();
 
-			qtdInstance.transform.Find("Cancel").gameObject.GetComponent<UnityEngine.UI.Button>().onClick
+			qtdInstance.transform.Find("Cancel").gameObject.GetComponent<Button>().onClick
 				.AddListener(delegate {trash.Cancel();});
 
-			qtdInstance.transform.Find("Submit").gameObject.GetComponent<UnityEngine.UI.Button>().onClick
+			qtdInstance.transform.Find("Submit").gameObject.GetComponent<Button>().onClick
 				.AddListener(delegate {RemoveItem(it, trash);});
 
 			qtdOpen = true;
@@ -115,16 +218,16 @@ namespace Window
 		}
 
 		public void RemoveItem(Item it, InventoryTrash trash) {
-			int value = Convert.ToInt32(qtdInstance.transform.Find("InputField").gameObject.GetComponent<UnityEngine.UI.InputField>().text);
+			int value = Convert.ToInt32(qtdInstance.transform.Find("InputField").gameObject.GetComponent<InputField>().text);
 			if(value > it.qtd) value = it.qtd;
 			trash.RemoveItem(value);
 		}
 
-		public override void Open(){
+		public override void Open(bool preserveParent = false){
 			base.Open();
-			instance.transform.Find("Close").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate {Close();});
+			instance.transform.Find("Close").GetComponent<Button>().onClick.AddListener(delegate {Close();});
 			instance.transform.Find("Trash").gameObject.AddComponent<InventoryTrash>();
-			instance.transform.Find("Gold").Find("Text").GetComponent<Text>().text = Rpg.Player.inventory.GetGold().ToString();
+			instance.transform.Find("Gold").Find("Text").GetComponent<Text>().text = Player.inventory.GetGold().ToString();
 			description = new ItemDescription(instance.transform);
 			ShowItems();
 		}
@@ -146,7 +249,7 @@ namespace Window
 				rta.SetParent(slots ,false);
 
 				try {
-					it = Rpg.Player.inventory.items[i];
+					it = Player.inventory.items[i];
 					GameObject b = UnityEngine.Object.Instantiate(item);
 					b.name = it.name;
 					InventoryDraggableItem idi = b.AddComponent<InventoryDraggableItem>();
@@ -174,14 +277,14 @@ namespace Window
 
 		public void Open(Item it){
 			base.Close();
-			base.Open();
-			instance.transform.Find("Close").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate {Close();});
+			base.Open(true);
+			instance.transform.Find("Close").GetComponent<Button>().onClick.AddListener(delegate {Close(true);});
 			RectTransform rt = instance.GetComponent<RectTransform>();
 			rt.SetParent(instance.transform, false);
 
 			rt.Find("Name").GetComponent<Text>().text = it.name;
 			rt.Find("Image").GetComponent<Image>().sprite = it.image;
-			rt.Find("Viewport").Find("Description").GetComponent<Text>().text = it.description;
+			rt.Find("Scroll View").Find("Viewport").Find("Description").GetComponent<Text>().text = it.description;
 			if(it.book == null){
 				UnityEngine.Object.Destroy(rt.Find("Book").gameObject);	
 				return;
@@ -191,7 +294,7 @@ namespace Window
 
 		void OpenBook(Item it){
 			Transform target = GameObject.Find("Main Canvas").transform;
-			Window.Book book = new Window.Book(target, it.book);
+			Window.Book book = new Window.Book(target, it.book, true);
 			book.Open();
 		}
 	}
@@ -201,11 +304,13 @@ namespace Window
 		string[] pages;
 		GameObject text;
 		GameObject image;
-		public Book(Transform _canvas, string[] _pages) : base(_canvas) {
+		bool preserveParent;
+		public Book(Transform _canvas, string[] _pages, bool _preserveParent = false) : base(_canvas) {
 			prefab = Resources.Load("WindowSystem/Prefabs/Book/Book") as GameObject;
 			text = Resources.Load("WindowSystem/Prefabs/Book/Text") as GameObject;
 			image = Resources.Load("WindowSystem/Prefabs/Book/Image") as GameObject;
 			pages = _pages;
+			preserveParent = _preserveParent;
 
 		}
 
@@ -222,10 +327,10 @@ namespace Window
 				instance = UnityEngine.Object.Instantiate(prefab);
 				instance.transform.SetParent(myCanvas, false);
 
-				instance.transform.Find("Close").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate {Close();});
+				instance.transform.Find("Close").GetComponent<Button>().onClick.AddListener(delegate {Close(preserveParent);});
 			}
 
-			Transform container = instance.transform.Find("Viewport").Find("Container");
+			Transform container = instance.transform.Find("Scroll View").Find("Viewport").Find("Container");
 
 			string pattern = @"\{\{[a-zA-Z0-9]+\}\}";
 			string pattern2 = @"[a-zA-Z0-9]+";
@@ -241,7 +346,7 @@ namespace Window
   				if(texts[i] != ""){
   					GameObject a = UnityEngine.Object.Instantiate(text);
   					a.transform.SetParent(container, false);
-  					a.GetComponent<UnityEngine.UI.Text>().text = texts[i];
+  					a.GetComponent<Text>().text = texts[i];
   				}
   				if(i <  images.Count){
   					GameObject b = UnityEngine.Object.Instantiate(image);
@@ -252,16 +357,16 @@ namespace Window
 
   					Sprite imageFile = Resources.LoadAll<Sprite>("Items/ItemSource/Images/"+ imageName)[0];
 
-  					b.GetComponent<UnityEngine.UI.Image>().sprite = imageFile;	
+  					b.GetComponent<Image>().sprite = imageFile;	
   				}
   			}
 
   			instance.transform.Find("Pages").Find("Prev")
-  				.GetComponent<UnityEngine.UI.Button>()
+  				.GetComponent<Button>()
   				.onClick.AddListener(delegate {OpenPage(page-1);});
 
 			instance.transform.Find("Pages").Find("Next")
-  				.GetComponent<UnityEngine.UI.Button>()
+  				.GetComponent<Button>()
   				.onClick.AddListener(delegate {OpenPage(page+1);});
 
 		}

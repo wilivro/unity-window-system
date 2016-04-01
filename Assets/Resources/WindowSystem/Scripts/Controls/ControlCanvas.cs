@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Rpg;
+using Rpg.QuestSystem;
 
 public class ControlCanvas : MonoBehaviour {
 
@@ -12,11 +14,11 @@ public class ControlCanvas : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Window.WindowBase.openedNow != null){
-			canvas.enabled = false;
-			return;
+		int qtd = 0;
+		foreach(Quest qt in Player.questLog){
+			if(qt.read) qtd++;
 		}
 
-		canvas.enabled = true;
+		print(qtd);
 	}
 }

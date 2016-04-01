@@ -2,26 +2,28 @@
 using System.Collections;
 using UnityStandardAssets.CrossPlatformInput;
 
+using Window;
+using Rpg.WindowSystem;
 
 public class WindowCanvas : MonoBehaviour {
 
 	// Use this for initialization
-	public static Scene.Language   language;
-	public static Window.Journal   journal;
-	public static Window.Inventory inventory;
+	public static Scene.Language language;
+	public static Journal journal;
+	public static Inventory inventory;
 
 	GameObject wrapper;
 
 	void Start () {
 		language  = new Scene.Language("pt-br");
-		journal   = new Window.Journal(transform);
-		inventory = new Window.Inventory(transform);
+		journal   = new Journal(transform);
+		inventory = new Inventory(transform, false, false);
 
 		wrapper = transform.Find("Wrapper").gameObject;
 	}
 
 	void WrapperHandler(){
-		if(Window.WindowBase.openedNow != null){
+		if(WindowBase.openedNow != null){
 			wrapper.active = true;
 			return;
 		}

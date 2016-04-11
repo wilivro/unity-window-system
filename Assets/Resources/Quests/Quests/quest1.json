@@ -1,8 +1,14 @@
 {
-	"name": "Quest 1",
-	"description": "description Quest",
-	"exp": 13502,
+	"name": "Tarefas de casa",
+	"description": "Hoje é domingo, um otimo dia para brincar na rua. Para poder ir la fora é preciso que Leo termine suas atividades.",
+	"exp": 10,
 	"icon": "icon",
 	"image": "image",
-	"rewardName" : ["potion","potion"]
+	"rewardName" : [],
+	"requirements": [
+		"Estudar",
+		"Lavar a louça",
+		"Tomar banho",
+		"Escovar os dentes"
+	]
 }

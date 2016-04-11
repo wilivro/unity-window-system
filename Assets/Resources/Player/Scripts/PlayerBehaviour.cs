@@ -6,31 +6,32 @@ using Rpg;
 public class PlayerBehaviour : MonoBehaviour, IControlable, IInteractable {
 
 	// Use this for initialization
-	Rpg.Player player;
-	Rigidbody2D rbody;
+	public Rpg.Player self;
 
+	Rigidbody2D rbody;
 	GameObject interactable;
 
-	void Awake () {
-		player = new Rpg.Player("Teste");
-		player.Save();
+	void Start () {
+		self = new Rpg.Player("Teste");
+		self.Save();
 		rbody = GetComponent<Rigidbody2D>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		Control();
-		Interact();
+		Interact(interactable);
 	}
 
-	public void OnInteract(IInteractable ii) {
+	public void OnInteract(GameObject from) {
 
 	}
 
-	public void Interact() {
+	public void Interact(GameObject to) {
+		if(to == null) return;
+
 		if(CrossPlatformInputManager.GetButtonDown("Submit")){
-			print("oi");
-			interactable.gameObject.SendMessage("OnInteract", this);
+			to.SendMessage("OnInteract", gameObject);
 		}
 	}
 
@@ -44,8 +45,14 @@ public class PlayerBehaviour : MonoBehaviour, IControlable, IInteractable {
 		rbody.MovePosition(rbody.position + movement_vector*Time.deltaTime);
 	}
 
+	bool IsInteractable(GameObject test){
+		return test.GetComponent<IInteractable>() != null;
+	}
+
 	void OnTriggerEnter2D(Collider2D other){
-		interactable = other.gameObject;
+		if(IsInteractable(other.gameObject)) {
+			interactable = other.gameObject;
+		}
 	}
 
 	void OnTriggerExit2D(Collider2D other){

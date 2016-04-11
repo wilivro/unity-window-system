@@ -10,6 +10,7 @@ namespace Rpg
 {
 	public class Item
 	{
+		public string baseName;
 		public string name;
 		public string description;
 		public int iconIndex;
@@ -35,6 +36,8 @@ namespace Rpg
 
 			icon = icons[iconIndex];
 			image = images[0];
+
+			baseName = _name;
 
 			qtd = 1;
 		}

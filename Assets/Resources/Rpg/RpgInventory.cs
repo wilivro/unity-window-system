@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+
 using Window;
 
 namespace Rpg
@@ -58,6 +59,10 @@ namespace Rpg
 			return i;
 		}
 
+		public Item Remove(string baseName, int qtd = 1) {
+			return Remove(new Item("baseName"), qtd);
+		}
+
 		public Item Remove(Item i, int qtd = 1) {
 			Item it = items.Find(itt => itt.name == i.name);
 
@@ -67,12 +72,13 @@ namespace Rpg
 				return it;
 			}
 
-			if(it != null) items.Remove(i);
+			if(it != null) items.Remove(it);
 
 			return it;
 		}
 
-		public int GetGold(){
+		public int GetGold(int _qtd = 0) {
+			gold -= _qtd;
 			return gold;
 		}
 

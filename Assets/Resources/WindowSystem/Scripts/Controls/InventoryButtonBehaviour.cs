@@ -7,17 +7,17 @@ using Rpg;
 public class InventoryButtonBehaviour : MonoBehaviour {
 
 	// Use this for initialization
-	private UnityAction OnQuestItemListener;
+	private UnityAction<object[]> OnQuestItemListener;
 
 	GameObject effect1pp;
 	void Awake () {
-		OnQuestItemListener = new UnityAction (OnItemAdd);
+		OnQuestItemListener = new UnityAction<object[]> (OnItemAdd);
 		EventManager.AddListener("ItemAdd", OnQuestItemListener);
 
 		effect1pp = Resources.Load("Effects/Prefabs/1pp") as GameObject;
 	}
 
-	void OnItemAdd(){
+	void OnItemAdd(object[] param){
 
 		Component[] others = GetComponentsInChildren (typeof (Effect1ppBehaviour));
 

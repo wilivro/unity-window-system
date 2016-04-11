@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 using Window;
 using Rpg.QuestSystem;
+using Rpg.DialogueSystem;
 
 namespace Rpg
 {
@@ -15,8 +16,8 @@ namespace Rpg
 
 	public interface IInteractable
 	{
-		void OnInteract(IInteractable ii);
-		void Interact();
+		void OnInteract(GameObject from);
+		void Interact(GameObject to);
 	}
 
 	public interface IControlable
@@ -36,7 +37,7 @@ namespace Rpg
 
 	public class Player : Character
 	{
-		
+		public static string name;
 		public string[] questLogParsed;
 		public string[] inventoryParsed;
 		public static List<Quest> questLog;
@@ -44,22 +45,11 @@ namespace Rpg
 
 		public Player(string _name) :  base(_name){
 
+			name = _name;
 			questLog = new List<Quest>();
 			inventory = new Rpg.Inventory();
 
-			questLog.Add(new Quest(1));
-			questLog.Add(new Quest(2));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(3));
-			questLog.Add(new Quest(1));
+			//questLog.Add(new Quest(1));
 
 			inventory.Add(new Item("potion"),3);
 
@@ -121,13 +111,24 @@ namespace Rpg
 		}
 	}
 
+
 	public class Npc : Character
 	{
-		public Npc(string _name) : base(_name) {
+		public string name;
+		public Speech[] dummyDialogue;
+		public int[] questList;
+		public Dialogue[]  dialogue;
+		public DialogueControl dialogueControl;
 
+		public Npc(string _name) : base(_name) {
+			string path = "Npcs/source/"+_name;
+
+			TextAsset questFile = Resources.Load(path) as TextAsset;
+			JsonUtility.FromJsonOverwrite(questFile.text, this);
+
+			dialogueControl = new DialogueControl(ref dialogue, ref dummyDialogue, name);
 		}
 	}
-
 	
 }
 

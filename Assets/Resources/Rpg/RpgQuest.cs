@@ -14,6 +14,7 @@ namespace Rpg
 	{
 		public class Quest
 		{
+			public enum QuestStatus {progress, complete, archived};
 			public string name;
 			public string description;
 			public float exp;
@@ -23,6 +24,7 @@ namespace Rpg
 			public List<Item> reward;
 			public int index;
 			public bool read;
+			public QuestStatus status;
 
 			public Quest(int questIndex) {
 				string path = "Quests/Quests/quest"+questIndex;
@@ -32,6 +34,7 @@ namespace Rpg
 				JsonUtility.FromJsonOverwrite(questFile.text, this);
 				index = questIndex;
 				read = false;
+				status = QuestStatus.progress;
 
 				EventManager.Trigger("QuestAdd");
 			}
@@ -149,6 +152,12 @@ namespace Rpg
 				//content.Find("Image").GetComponent<Image>().sprite = quest.description;
 				RectTransform reward = content.Find("Reward") as RectTransform;
 				reward.Find("Exp").GetComponent<Text>().text = quest.exp+" exp";
+
+				Text status = content.Find("Status").gameObject.GetComponent<Text>();
+
+				Debug.Log(quest.status);
+				
+				status.text = (quest.status == Quest.QuestStatus.complete) ? "Completed" : "";
 
 			}
 

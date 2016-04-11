@@ -5,7 +5,9 @@ using System.Collections.Generic;
 
 public class EventManager : MonoBehaviour {
 
-    private Dictionary <string, UnityEvent> eventDictionary;
+    public class MyEvent : UnityEvent<object[]> {};
+
+    private Dictionary <string, MyEvent> eventDictionary;
 
     private static EventManager eventManager;
 
@@ -35,41 +37,41 @@ public class EventManager : MonoBehaviour {
     {
         if (eventDictionary == null)
         {
-            eventDictionary = new Dictionary<string, UnityEvent>();
+            eventDictionary = new Dictionary<string, MyEvent>();
         }
     }
 
-    public static void AddListener (string eventName, UnityAction listener)
+    public static void AddListener (string eventName, UnityAction<object[]> listener)
     {
-        UnityEvent thisEvent = null;
+        MyEvent thisEvent = null;
         if (instance.eventDictionary.TryGetValue (eventName, out thisEvent))
         {
             thisEvent.AddListener (listener);
         } 
         else
         {
-            thisEvent = new UnityEvent ();
+            thisEvent = new MyEvent ();
             thisEvent.AddListener (listener);
             instance.eventDictionary.Add (eventName, thisEvent);
         }
     }
 
-    public static void RemoveListener (string eventName, UnityAction listener)
+    public static void RemoveListener (string eventName, UnityAction<object[]> listener)
     {
         if (eventManager == null) return;
-        UnityEvent thisEvent = null;
+        MyEvent thisEvent = null;
         if (instance.eventDictionary.TryGetValue (eventName, out thisEvent))
         {
             thisEvent.RemoveListener (listener);
         }
     }
 
-    public static void Trigger (string eventName)
+    public static void Trigger (string eventName, object[] param = null)
     {
-        UnityEvent thisEvent = null;
+        MyEvent thisEvent = null;
         if (instance.eventDictionary.TryGetValue (eventName, out thisEvent))
         {
-            thisEvent.Invoke ();
+            thisEvent.Invoke (param);
         }
     }
 }

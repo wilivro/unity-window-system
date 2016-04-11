@@ -1,0 +1,61 @@
+{
+	"name": "Mãe",
+
+	"questList": [
+		1,
+		2
+	],
+
+	"dialogue": [
+		{
+			"quest" : 1,
+			"requirementsQuest": [
+
+			],
+
+			"requirementsItems": [
+
+			],
+
+			"request": [
+				{
+					"name": "{{player}}",
+					"text":"Mãe posso brincar la fora?"
+				},
+				{
+					"name": "{{name}}",
+					"text":"Primeiro vá estudar um pouco, você ainda tem susa pesquisas pra fazer.",
+					"giveQuest": [1]
+				}
+			],
+
+			"before": [
+				{
+					"name": "{{name}}",
+					"text": "Bom dia {{player}}! Ja viu que o dia está lindo?"
+				}
+			],
+			"after": [
+				{
+					"name": "{{name}}",
+					"text": "Pronto {{player}}, já que você terminou seus trabalhos pode lavar a louça pra mim?",
+					"giveQuest": [2]
+				},
+				{
+					"name": "{{player}}",
+					"text": "Claro mãe!"
+				}
+			],
+			"inProgress": [
+				{
+					"name": "{{name}}",
+					"text": "{{player}}, termine logo suas coisas"
+				}
+			]
+		}
+	],
+	
+
+	"dummyDialogue": [
+	]
+}

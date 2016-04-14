@@ -4,11 +4,5 @@
 	"exp": 10,
 	"icon": "icon",
 	"image": "image",
-	"rewardName" : [],
-	"requirements": [
-		"Estudar",
-		"Lavar a louça",
-		"Tomar banho",
-		"Escovar os dentes"
-	]
+	"rewardName" : []
 }

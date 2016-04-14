@@ -20,24 +20,31 @@ namespace Rpg
 		public bool consumible;
 		public bool unique;
 		public string[] book;
+		public bool visible;
 
 		Sprite[] icons;
 		public Sprite icon;
 		Sprite[] images;
 		public Sprite image;
 
-
 		public Item(string _name) {
+			baseName = _name;
+
 			string path = "Items/ItemSource/Items/"+_name;
-			TextAsset questFile = Resources.Load(path) as TextAsset;
-			JsonUtility.FromJsonOverwrite(questFile.text, this);
+			TextAsset itemFile = Resources.Load(path) as TextAsset;
+
+			if(itemFile == null) {
+				visible = false;
+				return;
+			}
+			visible = true;
+			JsonUtility.FromJsonOverwrite(itemFile.text, this);
 			icons = Resources.LoadAll<Sprite>("Items/ItemSource/Images/icons");
 			images = Resources.LoadAll<Sprite>("Items/ItemSource/Images/"+imageName);
 
 			icon = icons[iconIndex];
 			image = images[0];
 
-			baseName = _name;
 
 			qtd = 1;
 		}

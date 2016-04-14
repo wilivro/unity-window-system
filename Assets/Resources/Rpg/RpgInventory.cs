@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using Window;
 
@@ -60,7 +61,7 @@ namespace Rpg
 		}
 
 		public Item Remove(string baseName, int qtd = 1) {
-			return Remove(new Item("baseName"), qtd);
+			return Remove(new Item(baseName), qtd);
 		}
 
 		public Item Remove(Item i, int qtd = 1) {
@@ -86,6 +87,12 @@ namespace Rpg
 			gold += _add;
 
 			return gold;
+		}
+
+		public bool HasItem(string _name, int qtd = 1) {
+			Item[] it = items.Where(itt => itt.name == _name).ToArray();
+			if(it.Length >= qtd || it[0].qtd >= qtd) return false;
+			return true;
 		}
 	}
 
@@ -189,13 +196,20 @@ namespace Rpg
 				}
 
 				Item it = null;
-				for(int i = 0; i < capacity; i++){
+				int k = 0;
+				for(int i = 0; i < Player.inventory.items.Count + capacity; i++){
+					if(k >= capacity) break;
 					GameObject a = UnityEngine.Object.Instantiate(slot);
 					RectTransform rta = a.GetComponent<RectTransform>();
 					rta.SetParent(slots ,false);
 
 					try {
 						it = Player.inventory.items[i];
+						if(!it.visible){
+							Debug.Log("Hidden one");
+							UnityEngine.Object.Destroy(a);
+							continue;
+						}
 						GameObject b = UnityEngine.Object.Instantiate(item);
 						b.name = it.name;
 						if(showTrash) {
@@ -210,8 +224,8 @@ namespace Rpg
 						Item itt = it;
 
 						b.GetComponent<Button>().onClick.AddListener(delegate {description.Open(itt);});
-
 					} catch	{}
+					k++;
 				}
 			}
 		};

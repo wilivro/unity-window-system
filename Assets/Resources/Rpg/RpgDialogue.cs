@@ -24,8 +24,9 @@ namespace Rpg
 			public Speech[] request;
 			public Speech[] inProgress;
 			public Speech[] after;
-			public int[] requirementsQuest;
-			public string[] requirementsItems;
+			public string[] preRequirements;
+			public string[] requirements;
+			public bool finishHere;
 		}
 
 		[Serializable]
@@ -40,6 +41,15 @@ namespace Rpg
 			public string[] getItem;
 			public bool exit;
 			public int[] completeQuest;
+			public string[] check;
+			public LogData[] registerLog;
+		}
+
+		[Serializable]
+		public class LogData
+		{
+			public string key;
+			public string message;
 		}
 
 		[Serializable]
@@ -54,6 +64,7 @@ namespace Rpg
 			public string[] giveItem;
 			public string[] getItem;
 			public int[] completeQuest;
+			public LogData[] registerLog;
 		}
 
 		public class DialogueControl
@@ -66,66 +77,14 @@ namespace Rpg
 
 			Speech[] actualDialogue;
 
-			private UnityAction<object[]> OnGiveQuest;
-			private UnityAction<object[]> OncompleteQuest;
-			private UnityAction<object[]> OnGiveItem;
-			private UnityAction<object[]> OnGetItem;
-
-			public DialogueControl(ref Dialogue[] _dialogue, ref Speech[] _dummy, string _npcName){
+			public DialogueControl(Dialogue[] _dialogue, Speech[] _dummy, string _npcName){
 				canvas = GameObject.Find("Main Canvas").transform;
 				dialogue = _dialogue;
 				npcName = _npcName;
 				dummy = _dummy;
 
 				dialogueWindow = new WindowSystem.Dialogue(canvas, npcName);
-
-				OnGiveQuest = new UnityAction<object[]> (OnGiveQuestCallback);
-				EventManager.AddListener("SpeechGiveQuest", OnGiveQuest);
-
-				OnGiveItem = new UnityAction<object[]> (OnGiveItemCallback);
-				EventManager.AddListener("SpeechGiveItem", OnGiveItem);
-
-				OncompleteQuest = new UnityAction<object[]> (OncompleteQuestCallback);
-				EventManager.AddListener("completeQuest", OncompleteQuest);
-
-				OnGetItem = new UnityAction<object[]> (OnGetItemCallback);
-				EventManager.AddListener("GetItem", OnGetItem);
-			}
-
-			void OnGiveQuestCallback(object[] param) {
-				int[] give = (int[])param[0];
-
-				for(int i = 0; i < give.Length; i++) {
-					Player.questLog.Add(new Quest(give[i]));
-				}
-			}
-
-			void OnGiveItemCallback(object[] param) {
-				string[] give = (string[])param[0];
-
-				for(int i = 0; i < give.Length; i++) {
-					Player.inventory.Add(new Item(give[i]));
-				}
-			}
-
-			void OnGetItemCallback(object[] param) {
-				string[] getItem = (string[])param[0];
-
-				for(int i = 0; i < getItem.Length; i++) {
-					Player.inventory.Remove(new Item(getItem[i]));
-				}
-			}
-
-			void OncompleteQuestCallback(object[] param) {
-				int[] quests = (int[])param[0];
-
-				if(quests == null) return;
-
-				for(int i=0; i < quests.Length; i++) {
-					Quest quest = Player.questLog.Where(q => q.index == quests[i]).Single();
-					if(quest != null) quest.status = Quest.QuestStatus.complete;
-				} 
-
+				
 			}
 
 			bool IsSubArray<T>(T[] universe, T[] planet) {
@@ -135,14 +94,22 @@ namespace Rpg
 					for(int j = 0; j < universe.Length; j++) {
 						if(planet[i].Equals(universe[j])){
 							exists = true;
-							continue;
+							break;
 						}
+
 					}
 					if(!exists) return false;
 				}
 
 
 
+				return true;
+			}
+
+			bool HasPreRequirements(string[] arr) {
+				foreach(string s in arr) {
+					if(!Log.HasKey(s)) return false;
+				}
 				return true;
 			}
 
@@ -157,7 +124,7 @@ namespace Rpg
 
 				Dialogue[] D = dialogue.Where(d =>
 					(Array.IndexOf(questLog, d.quest) < 0) &&
-					(IsSubArray<int>(questLog, d.requirementsQuest))
+					(HasPreRequirements(d.preRequirements))
 				).ToArray();
 
 				if(D.Length >= 1) {
@@ -180,7 +147,7 @@ namespace Rpg
 								.ToArray();
 
 				Dialogue[] D = dialogue
-									.Where(d => Array.IndexOf(questLog, d.quest) >= 0)
+									.Where(d => Array.IndexOf(questLog, d.quest) >= 0 && (HasPreRequirements(d.preRequirements)))
 									.ToArray();
 
 				if(D.Length > 0) {
@@ -191,7 +158,7 @@ namespace Rpg
 						return false;
 					}
 
-					if(what.status == Quest.QuestStatus.complete){
+					if(what.status == Quest.QuestStatus.complete || (HasPreRequirements(d.requirements) && d.finishHere) ) {
 						actualDialogue = d.after;
 						what.status = Quest.QuestStatus.archived;
 					}
@@ -209,13 +176,13 @@ namespace Rpg
 				if(dialogue == null) return false;
 
 				int[] questLog = Player.questLog
-								.Where(q => q.status == Quest.QuestStatus.archived)
+								//.Where(q => q.status == Quest.QuestStatus.archived)
 								.Select(q => q.index)
 								.ToArray();
 
 				Dialogue[] D = dialogue.Where(d =>
-					(Array.IndexOf(questLog, d.quest) < 0) &&
-					(!IsSubArray<int>(questLog, d.requirementsQuest) )
+					(Array.IndexOf(questLog, d.quest) >= 0) &&
+					(!HasPreRequirements(d.preRequirements))
 				).ToArray();
 
 				if(D.Length >= 1) {
@@ -278,28 +245,44 @@ namespace Rpg
 				npcName = _npcName;
 			}
 
-			void TriggerGiveQuest() {
-				if(dialogue[page].giveQuest != null){
-					EventManager.Trigger("SpeechGiveQuest", new object[1]{dialogue[page].giveQuest});
+			void TriggerGive<T1, T2>(T2[] arr) {
+				if(arr == null) return;
+				if(typeof(T1) == typeof(Quest))
+				{
+						EventManager.Trigger("PlayerReciveQuest", new object[1]{arr});
+						return;
+				}
+				if(typeof(T1) == typeof(Item))
+				{
+						EventManager.Trigger("PlayerReciveItem", new object[1]{arr});
+						return;
 				}
 			}
-			void TriggerGiveItem() {
-				if(dialogue[page].giveItem != null){
-					EventManager.Trigger("SpeechGiveItem", new object[1]{dialogue[page].giveItem});
+
+			void TriggerGet<T1, T2>(T2[] arr) {
+				if(arr == null) return;
+				if(typeof(T1) == typeof(Item))
+				{
+						EventManager.Trigger("PlayerRemoveItem", new object[1]{arr});
+						return;
 				}
 			}
-			void TriggerGetItem() {
-				if(dialogue[page].getItem != null){
-					EventManager.Trigger("GetItem", new object[1]{dialogue[page].getItem});
+
+			void RegisterLog(DialogueSystem.LogData[] registerLog){
+				if(registerLog == null) return;
+				foreach(DialogueSystem.LogData l in registerLog) {
+					Log.Register(l.key, l.message);
 				}
 			}
 
 			void OnNextPageCallback(object[] param) {
-				TriggerGiveQuest();
-				TriggerGiveItem();
-				TriggerGetItem();
+				if(dialogue == null) return;
+				RegisterLog(dialogue[page].registerLog);
+				TriggerGive <Quest,   int> (dialogue[page].giveQuest);
+				TriggerGive <Item, string> (dialogue[page].giveItem);
+				TriggerGet  <Item, string> (dialogue[page].getItem);
 
-				EventManager.Trigger("completeQuest", new object[1]{dialogue[page].completeQuest});
+				EventManager.Trigger("PlayerCompleteQuest", new object[1]{dialogue[page].completeQuest});
 
 				if(dialogue[page].exit != null && dialogue[page].exit){
 					Close();
@@ -316,23 +299,16 @@ namespace Rpg
 			}
 
 			void OnChoiceCallback(DialogueSystem.Choice _ch){
-				TriggerGiveQuest();
-				TriggerGiveItem();
-				TriggerGetItem();
+				if(dialogue == null) return;
+				TriggerGive <Quest,   int> (dialogue[page].giveQuest);
+				TriggerGive <Item, string> (dialogue[page].giveItem);
+				TriggerGet  <Item, string> (dialogue[page].getItem);
 
-				if(_ch.giveQuest != null){
-					EventManager.Trigger("SpeechGiveQuest", new object[1]{_ch.giveQuest});
-				}
+				TriggerGive <Quest,   int>  (_ch.giveQuest);
+				TriggerGive <Item, string>  (_ch.giveItem);
+				TriggerGet  <Item, string>  (_ch.getItem);
 
-				if(_ch.giveItem != null){
-					EventManager.Trigger("SpeechGiveItem", new object[1]{_ch.giveItem});
-				}
-
-				if(_ch.getItem != null){
-					EventManager.Trigger("GetItem", new object[1]{_ch.getItem});
-				}
-
-				EventManager.Trigger("completeQuest", new object[1]{_ch.completeQuest});
+				EventManager.Trigger("PlayerCompleteQuest", new object[1]{_ch.completeQuest});
 
 				page = _ch.gotoSpeech;
 				UnityEngine.Object.Destroy(chs);
@@ -358,6 +334,7 @@ namespace Rpg
 			void ShowSpeech() {
 
 				if(page >= dialogue.Length) {
+					dialogue = null;
 					Close();
 					return;
 				};
@@ -366,7 +343,6 @@ namespace Rpg
 
 				text = instance.transform.Find("Window").gameObject;
 				text.SendMessage("Write", FormatText(dialogue[page].text));
-				
 			}
 
 			void ShowChoices() {
@@ -392,6 +368,7 @@ namespace Rpg
 			}
 
 			void OnWriteEndCallback(object[] param){
+				if(dialogue == null) return;
 				if(dialogue[page].choice == null) return;
 
 				if(dialogue[page].choice.Length > 0)

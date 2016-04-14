@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using Window;
 using Rpg.QuestSystem;
@@ -23,7 +25,6 @@ namespace Rpg
 	public interface IControlable
 	{
 		void Control();
-
 	}
 
 	public class Character
@@ -43,6 +44,11 @@ namespace Rpg
 		public static List<Quest> questLog;
 		public static Inventory inventory;
 
+		private UnityAction<object[]> OnGiveQuest;
+		private UnityAction<object[]> OncompleteQuest;
+		private UnityAction<object[]> OnGiveItem;
+		private UnityAction<object[]> OnGetItem;
+
 		public Player(string _name) :  base(_name){
 
 			name = _name;
@@ -57,6 +63,54 @@ namespace Rpg
 
 			inventory.Add(new Item("cartilha"));
 
+			OnGiveQuest = new UnityAction<object[]> (OnGiveQuestCallback);
+			EventManager.AddListener("PlayerReciveQuest", OnGiveQuest);
+
+			OnGiveItem = new UnityAction<object[]> (OnGiveItemCallback);
+			EventManager.AddListener("PlayerReciveItem", OnGiveItem);
+
+			OncompleteQuest = new UnityAction<object[]> (OncompleteQuestCallback);
+			EventManager.AddListener("PlayerCompleteQuest", OncompleteQuest);
+
+			OnGetItem = new UnityAction<object[]> (OnGetItemCallback);
+			EventManager.AddListener("PlayerRemoveItem", OnGetItem);
+
+
+		}
+
+		void OnGiveQuestCallback(object[] param) {
+			int[] give = (int[])param[0];
+
+			for(int i = 0; i < give.Length; i++) {
+				questLog.Add(new Quest(give[i]));
+			}
+		}
+
+		void OnGiveItemCallback(object[] param) {
+			string[] give = (string[])param[0];
+
+			for(int i = 0; i < give.Length; i++) {
+				inventory.Add(new Item(give[i]));
+			}
+		}
+
+		void OnGetItemCallback(object[] param) {
+			string[] getItem = (string[])param[0];
+
+			for(int i = 0; i < getItem.Length; i++) {
+				inventory.Remove(new Item(getItem[i]));
+			}
+		}
+
+		void OncompleteQuestCallback(object[] param) {
+			int[] quests = (int[])param[0];
+
+			if(quests == null) return;
+
+			for(int i=0; i < quests.Length; i++) {
+				Quest quest = questLog.Where(q => q.index == quests[i]).Single();
+				if(quest != null) quest.status = Quest.QuestStatus.complete;
+			} 
 
 		}
 
@@ -126,8 +180,28 @@ namespace Rpg
 			TextAsset questFile = Resources.Load(path) as TextAsset;
 			JsonUtility.FromJsonOverwrite(questFile.text, this);
 
-			dialogueControl = new DialogueControl(ref dialogue, ref dummyDialogue, name);
+			dialogueControl = new DialogueControl(dialogue, dummyDialogue, name);
 		}
+	}
+
+	public class Log
+	{
+		public static Dictionary <string, string> activities = new Dictionary<string, string>();
+
+		public static void Register(string _key, string _value) {
+			Debug.Log("Logging "+_key+" , "+_value);
+			activities.Add(_key, _value);
+		}
+
+		public static bool HasKey(string _key) {
+			string _value = null;
+			if(activities.TryGetValue(_key, out _value)) {
+				return true;
+			}
+
+			return false;
+		}
+
 	}
 	
 }

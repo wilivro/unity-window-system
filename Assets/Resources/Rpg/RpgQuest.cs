@@ -154,8 +154,6 @@ namespace Rpg
 				reward.Find("Exp").GetComponent<Text>().text = quest.exp+" exp";
 
 				Text status = content.Find("Status").gameObject.GetComponent<Text>();
-
-				Debug.Log(quest.status);
 				
 				status.text = (quest.status == Quest.QuestStatus.complete) ? "Completed" : "";
 

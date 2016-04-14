@@ -9,23 +9,25 @@
 	"dialogue": [
 		{
 			"quest" : 1,
-			"requirementsQuest": [
-
-			],
-
-			"requirementsItems": [
-
-			],
-
+			"preRequirements":[],
+			"requirements": ["q01s01", "q01s02"],
+			"finishHere": true,
 			"request": [
 				{
 					"name": "{{player}}",
-					"text":"Mãe posso brincar la fora?"
+					"text":"Mãe posso brincar la fora?!"
 				},
 				{
 					"name": "{{name}}",
 					"text":"Primeiro vá estudar um pouco, você ainda tem susa pesquisas pra fazer.",
-					"giveQuest": [1]
+					"giveItem": ["teste"],
+					"giveQuest": [1],
+					"registerLog": [
+						{
+							"key": "q01s00",
+							"message": "{{player}} recieve a new quest;"
+						}
+					]
 				}
 			],
 
@@ -49,7 +51,7 @@
 			"inProgress": [
 				{
 					"name": "{{name}}",
-					"text": "{{player}}, termine logo suas coisas"
+					"text": "{{player}}, está aqui o dinheiro"
 				}
 			]
 		}

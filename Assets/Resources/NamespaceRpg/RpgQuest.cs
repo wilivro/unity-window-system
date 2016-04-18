@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using Window;
 using Rpg.QuestSystem;
@@ -25,6 +27,7 @@ namespace Rpg
 			public int index;
 			public bool read;
 			public QuestStatus status;
+			public string[] requirements;
 
 			public Quest(int questIndex) {
 				string path = "Quests/Quests/quest"+questIndex;
@@ -37,10 +40,21 @@ namespace Rpg
 				status = QuestStatus.progress;
 
 				EventManager.Trigger("QuestAdd");
+
+				foreach(string s in requirements){
+					EventManager.Trigger("QuestHelperItemAdd",new object[1] {s});
+				}
 			}
 
 			public override string ToString() {
 				return name;
+			}
+
+			public void Archive() {
+				status = Quest.QuestStatus.archived;
+				foreach(string s in requirements){
+					EventManager.Trigger("QuestHelperItemDelete",new object[1] {s});
+				}
 			}
 		}
 	}
@@ -160,5 +174,61 @@ namespace Rpg
 			}
 
 		};
+
+		public class QuestHelper
+		{
+			private UnityAction<object[]> OnItemAdd;
+			private UnityAction<object[]> OnItemDelete;
+			private UnityAction<object[]> OnItemCheck;
+
+			GameObject item;
+			Transform ctx;
+			Dictionary<string, GameObject> instances;
+
+			public QuestHelper(){
+
+				ctx = UnityEngine.GameObject.Find("QuestHelper").transform.Find("Scroll View").Find("Viewport").Find("Content");
+
+				item = Resources.Load("WindowSystem/Prefabs/QuestHelper/Item") as GameObject;
+				instances = new Dictionary<string, GameObject>();
+
+				OnItemAdd = new UnityAction<object[]> (OnItemAddCallback);
+				OnItemDelete = new UnityAction<object[]> (OnItemDeleteCallback);
+				OnItemCheck = new UnityAction<object[]> (OnItemCheckCallback);
+
+				EventManager.AddListener("QuestHelperItemAdd", OnItemAdd);
+				EventManager.AddListener("QuestHelperItemDelete", OnItemDelete);
+				EventManager.AddListener("QuestHelperItemCheck", OnItemCheck);
+			}
+
+			void OnItemAddCallback(object[] param){
+				string key = (string)param[0];
+				GameObject it = UnityEngine.Object.Instantiate(item);
+
+				it.transform.SetParent(ctx, false);
+				it.transform.Find("Label").GetComponent<Text>().text = WindowCanvas.database.Select(key);
+
+				instances.Add(key, it);
+			}
+
+			void OnItemDeleteCallback(object[] param){
+				string key = (string)param[0];
+
+				GameObject _value = null;
+				if(instances.TryGetValue(key, out _value)){
+					instances.Remove(key);
+					UnityEngine.Object.Destroy(_value);
+				}
+			}
+
+			void OnItemCheckCallback(object[] param){
+				string key = (string)param[0];
+
+				GameObject _value = null;
+				if(instances.TryGetValue(key, out _value)){
+					_value.GetComponent<Toggle>().isOn = true;
+				}
+			}
+		}
 	}
 }

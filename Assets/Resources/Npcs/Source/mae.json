@@ -41,7 +41,13 @@
 				{
 					"name": "{{name}}",
 					"text": "Pronto {{player}}, já que você terminou seus trabalhos pode lavar a louça pra mim?",
-					"giveQuest": [2]
+					"giveQuest": [2],
+					"registerLog": [
+						{
+							"key": "q01",
+							"message": "{{player}} complete q01;"
+						}
+					]
 				},
 				{
 					"name": "{{player}}",

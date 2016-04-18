@@ -107,10 +107,7 @@ namespace Rpg
 			}
 
 			bool HasPreRequirements(string[] arr) {
-				foreach(string s in arr) {
-					if(!Log.HasKey(s)) return false;
-				}
-				return true;
+				return Log.HasKey(arr);
 			}
 
 			bool RequestQuest(){
@@ -160,7 +157,8 @@ namespace Rpg
 
 					if(what.status == Quest.QuestStatus.complete || (HasPreRequirements(d.requirements) && d.finishHere) ) {
 						actualDialogue = d.after;
-						what.status = Quest.QuestStatus.archived;
+						what.Archive();
+						
 					}
 					else
 						actualDialogue = d.inProgress;
@@ -270,9 +268,7 @@ namespace Rpg
 
 			void RegisterLog(DialogueSystem.LogData[] registerLog){
 				if(registerLog == null) return;
-				foreach(DialogueSystem.LogData l in registerLog) {
-					Log.Register(l.key, l.message);
-				}
+				Log.Register(registerLog);
 			}
 
 			void OnNextPageCallback(object[] param) {

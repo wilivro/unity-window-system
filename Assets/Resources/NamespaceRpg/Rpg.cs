@@ -190,6 +190,7 @@ namespace Rpg
 
 		public static void Register(string _key, string _value) {
 			Debug.Log("Logging "+_key+" , "+_value);
+			EventManager.Trigger("QuestHelperItemCheck", new object[1] {_key});
 			activities.Add(_key, _value);
 		}
 
@@ -202,6 +203,41 @@ namespace Rpg
 			return false;
 		}
 
+		public static bool HasKey(string[] arr) {
+			foreach(string s in arr) {
+				if(!HasKey(s)) return false;
+			}
+			return true;
+		}
+
+		public static void Register(DialogueSystem.LogData[] registerLog){
+			foreach(DialogueSystem.LogData l in registerLog) {
+				Register(l.key, l.message);
+			}
+		}
+
+	}
+
+	[Serializable]
+	public class DatabaseDictionary
+	{
+		public string key;
+		public string value;
+	}
+
+	public class Database
+	{
+		public DatabaseDictionary[] data;
+
+		public Database(string _path) {
+			TextAsset file = Resources.Load(_path) as TextAsset;
+			JsonUtility.FromJsonOverwrite(file.text, this);
+		}
+
+		public string Select(string _key) {
+			return data.Where(d => d.key == _key).Single().value;
+		}
+		
 	}
 	
 }

@@ -4,5 +4,7 @@
 	"exp": 123,
 	"icon": "icon",
 	"image": "image",
-	"rewardName" : ["potion","potion"]
+	"rewardName" : ["potion","potion"],
+	"requirements": [
+	]
 }

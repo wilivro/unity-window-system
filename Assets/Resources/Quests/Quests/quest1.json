@@ -4,5 +4,9 @@
 	"exp": 10,
 	"icon": "icon",
 	"image": "image",
-	"rewardName" : []
+	"rewardName" : [],
+	"requirements": [
+		"q01s01",
+		"q01s02"
+	]
 }

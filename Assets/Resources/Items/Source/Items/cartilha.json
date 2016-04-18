@@ -6,8 +6,19 @@
 	"acumulative": true,
 	"consumible": true,
 	"unique": true,
+	"permanent": true,
+	"receive": true,
+	"autoOpen": true,
+	"preRequirements":["q01s00"],
+	"registerLog": [
+		{
+			"key": "q01s02",
+			"message": ""
+		}
+	],
 	"book": [
 		"pagina 1 texto texto {{potion}} texto texto {{potion}}",
 		"pagina 2"
 	]
+
 }

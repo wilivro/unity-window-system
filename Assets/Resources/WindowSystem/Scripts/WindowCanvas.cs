@@ -3,6 +3,7 @@ using System.Collections;
 using UnityStandardAssets.CrossPlatformInput;
 
 using Window;
+using Rpg;
 using Rpg.WindowSystem;
 
 public class WindowCanvas : MonoBehaviour {
@@ -10,14 +11,18 @@ public class WindowCanvas : MonoBehaviour {
 	// Use this for initialization
 	public static Scene.Language language;
 	public static Journal journal;
-	public static Inventory inventory;
+	public static Rpg.WindowSystem.Inventory inventory;
+	public static QuestHelper helper;
+	public static Database database;
 
 	GameObject wrapper;
 
 	void Start () {
 		language  = new Scene.Language("pt-br");
 		journal   = new Journal(transform);
-		inventory = new Inventory(transform, false, false);
+		inventory = new Rpg.WindowSystem.Inventory(transform, false, false);
+		helper    = new QuestHelper();
+		database  = new Database("Database/database");
 
 		wrapper = transform.Find("Wrapper").gameObject;
 	}

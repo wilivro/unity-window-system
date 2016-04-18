@@ -6,6 +6,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Window;
 
+using Rpg;
+using Rpg.QuestSystem;
+using Rpg.DialogueSystem;
+
 namespace Rpg
 {
 	public class Item
@@ -21,6 +25,11 @@ namespace Rpg
 		public bool unique;
 		public string[] book;
 		public bool visible;
+		public string[] preRequirements;
+		public bool receive = true;
+		public bool autoOpen;
+		public bool permanent;
+		public LogData[] registerLog;
 
 		Sprite[] icons;
 		public Sprite icon;
@@ -30,7 +39,7 @@ namespace Rpg
 		public Item(string _name) {
 			baseName = _name;
 
-			string path = "Items/ItemSource/Items/"+_name;
+			string path = "Items/Source/Items/"+_name;
 			TextAsset itemFile = Resources.Load(path) as TextAsset;
 
 			if(itemFile == null) {
@@ -39,8 +48,9 @@ namespace Rpg
 			}
 			visible = true;
 			JsonUtility.FromJsonOverwrite(itemFile.text, this);
-			icons = Resources.LoadAll<Sprite>("Items/ItemSource/Images/icons");
-			images = Resources.LoadAll<Sprite>("Items/ItemSource/Images/"+imageName);
+
+			icons = Resources.LoadAll<Sprite>("Items/Source/Images/icons");
+			images = Resources.LoadAll<Sprite>("Items/Source/Images/"+imageName);
 
 			icon = icons[iconIndex];
 			image = images[0];

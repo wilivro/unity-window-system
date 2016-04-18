@@ -122,7 +122,7 @@ namespace Window
   					string imageName = images[i].ToString().Replace("{{", "");
   					imageName = imageName.Replace("}}", "");
 
-  					Sprite imageFile = Resources.LoadAll<Sprite>("Items/ItemSource/Images/"+ imageName)[0];
+  					Sprite imageFile = Resources.LoadAll<Sprite>("Items/Source/Images/"+ imageName)[0];
 
   					b.GetComponent<Image>().sprite = imageFile;	
   				}

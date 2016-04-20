@@ -99,7 +99,7 @@ namespace Window
 
 			Transform container = instance.transform.Find("Scroll View").Find("Viewport").Find("Container");
 
-			string pattern = @"\{\{[a-zA-Z0-9]+\}\}";
+			string pattern = @"\{\{[a-zA-Z0-9/]+\}\}";
 			string pattern2 = @"[a-zA-Z0-9]+";
 
 			foreach(Transform t in container){
@@ -122,7 +122,7 @@ namespace Window
   					string imageName = images[i].ToString().Replace("{{", "");
   					imageName = imageName.Replace("}}", "");
 
-  					Sprite imageFile = Resources.LoadAll<Sprite>("Items/Source/Images/"+ imageName)[0];
+  					Sprite imageFile = Resources.LoadAll<Sprite>(imageName)[0];
 
   					b.GetComponent<Image>().sprite = imageFile;	
   				}

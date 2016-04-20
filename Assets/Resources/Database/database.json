@@ -1,6 +1,37 @@
 {
 	"data": [
-		{"key": "q01s01", "value": "fale com o seu tio"},
-		{"key": "q01s02", "value": "fale com o sua vó"}
+		{
+			"key": "q01s01",
+			"label": "Fazer pesquisas"
+		}
+	],
+
+	"quests": [
+		{
+			"key": "q01",
+			"path": "Database/Quests/",
+			"filename": "quest1",
+			"label": "Buscando Conhecimento"
+		}
+	],
+
+	"items": [
+		{
+			"key": "i01",
+			"path": "Database/Items/",
+			"filename": "potion"
+		},
+
+		{
+			"key": "i02",
+			"path": "Database/Items/",
+			"filename": "mana"
+		},
+		
+		{
+			"key": "i03",
+			"path": "Database/Items/",
+			"filename": "cartilha"
+		}
 	]
 }

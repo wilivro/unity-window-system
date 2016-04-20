@@ -6,7 +6,7 @@ using Window;
 using Rpg;
 using Rpg.WindowSystem;
 
-public class WindowCanvas : MonoBehaviour {
+public class GameController : MonoBehaviour {
 
 	// Use this for initialization
 	public static Scene.Language language;
@@ -36,7 +36,6 @@ public class WindowCanvas : MonoBehaviour {
 		wrapper.active = false;
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		WrapperHandler();
 		if(CrossPlatformInputManager.GetButtonUp("Journal")){

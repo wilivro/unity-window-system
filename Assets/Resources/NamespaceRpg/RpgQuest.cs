@@ -29,13 +29,12 @@ namespace Rpg
 			public QuestStatus status;
 			public string[] requirements;
 
-			public Quest(int questIndex) {
-				string path = "Quests/Quests/quest"+questIndex;
+			public Quest(string id) {
+				string path = ((DatabaseQuest) GameController.database.Find(id)).GetFullPath();
 
 				TextAsset questFile = Resources.Load(path) as TextAsset;
 
 				JsonUtility.FromJsonOverwrite(questFile.text, this);
-				index = questIndex;
 				read = false;
 				status = QuestStatus.progress;
 
@@ -81,7 +80,7 @@ namespace Rpg
 					.transform.Find("Name")
 					.Find("Text")
 					.GetComponent<Text>()
-					.text = WindowCanvas.language.journal;
+					.text = GameController.language.journal;
 
 				questJournalSelect = Resources.Load("WindowSystem/Prefabs/QuestJournal/QuestJournalSelect") as GameObject;
 				space = Resources.Load("WindowSystem/Prefabs/QuestJournal/Space") as GameObject;
@@ -206,7 +205,7 @@ namespace Rpg
 				GameObject it = UnityEngine.Object.Instantiate(item);
 
 				it.transform.SetParent(ctx, false);
-				it.transform.Find("Label").GetComponent<Text>().text = WindowCanvas.database.Select(key);
+				it.transform.Find("Label").GetComponent<Text>().text = ((DatabaseDictionary)GameController.database.Find(key)).GetLabel();
 
 				instances.Add(key, it);
 			}

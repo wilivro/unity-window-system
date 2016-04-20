@@ -36,21 +36,25 @@ namespace Rpg
 		Sprite[] images;
 		public Sprite image;
 
-		public Item(string _name) {
-			baseName = _name;
+		public Item(string id) {
 
-			string path = "Items/Source/Items/"+_name;
-			TextAsset itemFile = Resources.Load(path) as TextAsset;
+			DatabaseItem dd = (DatabaseItem)GameController.database.Find(id);
 
-			if(itemFile == null) {
+			if(dd == null){
 				visible = false;
 				return;
-			}
+			};
+
+			string path = dd.path+dd.filename;
+			TextAsset itemFile = Resources.Load(path) as TextAsset;
+
+			baseName = dd.filename;
+
 			visible = true;
 			JsonUtility.FromJsonOverwrite(itemFile.text, this);
 
-			icons = Resources.LoadAll<Sprite>("Items/Source/Images/icons");
-			images = Resources.LoadAll<Sprite>("Items/Source/Images/"+imageName);
+			icons = Resources.LoadAll<Sprite>(dd.path+"Images/icons");
+			images = Resources.LoadAll<Sprite>(dd.path+"Images/"+imageName);
 
 			icon = icons[iconIndex];
 			image = images[0];
@@ -91,7 +95,7 @@ namespace Rpg
 			}
 
 			void OpenBook(Item it){
-				Transform target = GameObject.Find("Main Canvas").transform;
+				Transform target = GameObject.Find("GameController").transform;
 				Window.Book book = new Window.Book(target, it.book, true);
 				book.Open();
 			}

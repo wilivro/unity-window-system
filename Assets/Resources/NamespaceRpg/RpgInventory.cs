@@ -114,8 +114,8 @@ namespace Rpg
 
 			public Inventory(Transform _canvas, bool _showMoney = true, bool _showTrash = true) : base(_canvas) {
 				prefab = Resources.Load("WindowSystem/Prefabs/Inventory/Inventory") as GameObject;
-				prefab.transform.Find("Name").Find("Text").GetComponent<Text>().text = WindowCanvas.language.inventory;
-				prefab.transform.Find("Gold").Find("Label").GetComponent<Text>().text = WindowCanvas.language.gold;
+				prefab.transform.Find("Name").Find("Text").GetComponent<Text>().text = GameController.language.inventory;
+				prefab.transform.Find("Gold").Find("Label").GetComponent<Text>().text = GameController.language.gold;
 				slot = Resources.Load("WindowSystem/Prefabs/Inventory/Slot") as GameObject;
 				item = Resources.Load("WindowSystem/Prefabs/Inventory/Item") as GameObject;
 				qtd = Resources.Load("WindowSystem/Prefabs/Inventory/QtdInput") as GameObject;

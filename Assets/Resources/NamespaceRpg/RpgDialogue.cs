@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+
 using Window;
 using Rpg.WindowSystem;
 using Rpg.QuestSystem;
@@ -36,7 +37,7 @@ namespace Rpg
 			public string text;
 			public Choice[] choice;
 			public int gotoSpeech = -1;
-			public int[] giveQuest;
+			public string[] giveQuest;
 			public string[] giveItem;
 			public string[] getItem;
 			public bool exit;
@@ -60,7 +61,7 @@ namespace Rpg
 			public string imageBase;
 			public bool correct;
 			public int gotoSpeech = -1;
-			public int[] giveQuest;
+			public string[] giveQuest;
 			public string[] giveItem;
 			public string[] getItem;
 			public int[] completeQuest;
@@ -78,7 +79,7 @@ namespace Rpg
 			Speech[] actualDialogue;
 
 			public DialogueControl(Dialogue[] _dialogue, Speech[] _dummy, string _npcName){
-				canvas = GameObject.Find("Main Canvas").transform;
+				canvas = GameObject.Find("GameController").transform;
 				dialogue = _dialogue;
 				npcName = _npcName;
 				dummy = _dummy;
@@ -274,7 +275,7 @@ namespace Rpg
 			void OnNextPageCallback(object[] param) {
 				if(dialogue == null) return;
 				RegisterLog(dialogue[page].registerLog);
-				TriggerGive <Quest,   int> (dialogue[page].giveQuest);
+				TriggerGive <Quest,   string> (dialogue[page].giveQuest);
 				TriggerGive <Item, string> (dialogue[page].giveItem);
 				TriggerGet  <Item, string> (dialogue[page].getItem);
 
@@ -296,11 +297,11 @@ namespace Rpg
 
 			void OnChoiceCallback(DialogueSystem.Choice _ch){
 				if(dialogue == null) return;
-				TriggerGive <Quest,   int> (dialogue[page].giveQuest);
+				TriggerGive <Quest,   string> (dialogue[page].giveQuest);
 				TriggerGive <Item, string> (dialogue[page].giveItem);
 				TriggerGet  <Item, string> (dialogue[page].getItem);
 
-				TriggerGive <Quest,   int>  (_ch.giveQuest);
+				TriggerGive <Quest,   string>  (_ch.giveQuest);
 				TriggerGive <Item, string>  (_ch.giveItem);
 				TriggerGet  <Item, string>  (_ch.getItem);
 

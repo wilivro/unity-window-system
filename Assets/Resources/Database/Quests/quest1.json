@@ -6,7 +6,6 @@
 	"image": "image",
 	"rewardName" : [],
 	"requirements": [
-		"q01s01",
-		"q01s02"
+		"q01s01"
 	]
 }

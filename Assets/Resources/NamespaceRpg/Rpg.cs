@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 using Window;
 using Rpg.QuestSystem;
@@ -57,11 +58,8 @@ namespace Rpg
 
 			//questLog.Add(new Quest(1));
 
-			inventory.Add(new Item("potion"),3);
-
-			inventory.Add(new Item("mana"),5);
-
-			inventory.Add(new Item("cartilha"));
+			inventory.Add(new Item("i01"),3);
+			inventory.Add(new Item("i03"));
 
 			OnGiveQuest = new UnityAction<object[]> (OnGiveQuestCallback);
 			EventManager.AddListener("PlayerReciveQuest", OnGiveQuest);
@@ -79,7 +77,7 @@ namespace Rpg
 		}
 
 		void OnGiveQuestCallback(object[] param) {
-			int[] give = (int[])param[0];
+			string[] give = (string[])param[0];
 
 			for(int i = 0; i < give.Length; i++) {
 				questLog.Add(new Quest(give[i]));
@@ -184,14 +182,43 @@ namespace Rpg
 		}
 	}
 
+	public class Warp
+	{
+		public string[] requirements;
+
+		public DialogueControl dialogueControl;
+
+		public Warp() {
+
+		}
+
+		public Warp(string id) {
+			//string path = ()(GameController.database.Find(id)).SelectPath();
+
+			//TextAsset questFile = Resources.Load(path) as TextAsset;
+			//JsonUtility.FromJsonOverwrite(questFile.text, this);
+
+			//dialogueControl = new DialogueControl(dialogue, dummyDialogue, name);
+
+		}
+
+		public bool Ready() {
+			return Log.HasKey(requirements);
+		}
+	}
+
 	public class Log
 	{
 		public static Dictionary <string, string> activities = new Dictionary<string, string>();
 
 		public static void Register(string _key, string _value) {
-			Debug.Log("Logging "+_key+" , "+_value);
-			EventManager.Trigger("QuestHelperItemCheck", new object[1] {_key});
-			activities.Add(_key, _value);
+			try {
+				EventManager.Trigger("QuestHelperItemCheck", new object[1] {_key});
+				activities.Add(_key, _value);
+				Debug.Log("Logging "+_key+" , "+_value);
+			} catch {
+				Debug.Log("Already registred "+_key);
+			}
 		}
 
 		public static bool HasKey(string _key) {
@@ -219,23 +246,102 @@ namespace Rpg
 	}
 
 	[Serializable]
-	public class DatabaseDictionary
+	public class DatabaseDictionary : IDatabaseItem
 	{
 		public string key;
-		public string value;
+		public string label;
+
+		public string GetKey() {
+			return key;
+		}
+
+		public string GetLabel() {
+			return label;
+		}
+	}
+
+	[Serializable]
+	public class DatabaseItem : IDatabaseItem
+	{
+		public string key;
+		public string path;
+		public string filename;
+
+		public string GetKey() {
+			return key;
+		}
+
+		public string GetFullPath(){
+			return path+filename;
+		}
+
+		public string GetPath(){
+			return path;
+		}
+	}
+
+	[Serializable]
+	public class DatabaseQuest : DatabaseItem
+	{
+	}
+
+	[Serializable]
+	public class DatabaseFace : DatabaseItem
+	{
+	}
+
+	public interface IDatabaseItem
+	{		
+		string GetKey();
+	}
+
+	public class DatabaseJson
+	{
+		public DatabaseDictionary[] data;
+		public DatabaseQuest[] quests;
+		//public DatabaseFace[] faces;
+		public DatabaseItem[] items;
+
+		public DatabaseJson(string _path) {
+			TextAsset file = Resources.Load(_path) as TextAsset;
+			JsonUtility.FromJsonOverwrite(file.text, this);
+		}
 	}
 
 	public class Database
 	{
-		public DatabaseDictionary[] data;
+		public DatabaseJson json;
+
+		public List<IDatabaseItem> i;
 
 		public Database(string _path) {
-			TextAsset file = Resources.Load(_path) as TextAsset;
-			JsonUtility.FromJsonOverwrite(file.text, this);
+
+			json = new DatabaseJson(_path);
+
+			i = new List<IDatabaseItem>();
+
+			FieldInfo[] fields = json.GetType().GetFields();
+
+			foreach (FieldInfo fieldInfo in fields)
+			{
+			    Debug.Log("Field: " + fieldInfo.Name);
+			    Debug.Log(typeof(DatabaseJson).GetField(fieldInfo.Name).GetValue(json));
+			    IDatabaseItem[] property = (IDatabaseItem[])(typeof(DatabaseJson).GetField(fieldInfo.Name).GetValue(json));
+			    List<IDatabaseItem> list = property.ToList();
+
+			    foreach(IDatabaseItem it in list) {
+			    	i.Add(it);
+			    }
+			}
+			
 		}
 
-		public string Select(string _key) {
-			return data.Where(d => d.key == _key).Single().value;
+		public IDatabaseItem Find(string _key) {
+			try {
+				return i.Where(d => d.GetKey() == _key).Single();
+			} catch {
+				return null;
+			}
 		}
 		
 	}

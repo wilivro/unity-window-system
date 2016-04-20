@@ -20,8 +20,7 @@ public class ItemBehaviour : MonoBehaviour, IInteractable {
 		if(self.preRequirements != null && !Log.HasKey(self.preRequirements)) return;
 		
 		if(self.book != null && self.autoOpen) {
-			Debug.Log("Open");
-			Transform target = GameObject.Find("Main Canvas").transform;
+			Transform target = GameObject.Find("GameController").transform;
 			Window.Book book = new Window.Book(target, self.book);
 			book.Open();
 		}

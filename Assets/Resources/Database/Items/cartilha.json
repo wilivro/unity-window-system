@@ -17,7 +17,7 @@
 		}
 	],
 	"book": [
-		"pagina 1 texto texto {{potion}} texto texto {{potion}}",
+		"pagina 1 texto texto {{DataBase/Items/Images/potion}} texto texto {{DataBase/Items/Images/potion}}",
 		"pagina 2"
 	]
 

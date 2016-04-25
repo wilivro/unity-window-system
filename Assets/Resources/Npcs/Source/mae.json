@@ -1,11 +1,5 @@
 {
 	"name": "Mãe",
-
-	"questList": [
-		1,
-		2
-	],
-
 	"dialogue": [
 		{
 			"quest" : 1,
@@ -15,13 +9,15 @@
 			"request": [
 				{
 					"name": "{{player}}",
-					"text":"Mãe posso brincar la fora?!"
+					"text":"Mãe posso brincar la fora?!",
+					"image": "face-player"
 				},
 				{
 					"name": "{{name}}",
 					"text":"Primeiro vá estudar um pouco, você ainda tem susa pesquisas pra fazer.",
 					"giveItem": ["teste"],
 					"giveQuest": ["q01"],
+					"image": "face-mae",
 					"registerLog": [
 						{
 							"key": "q01s00",
@@ -34,14 +30,16 @@
 			"before": [
 				{
 					"name": "{{name}}",
+					"image": "face-mae",
 					"text": "Bom dia {{player}}! Ja viu que o dia está lindo?"
 				}
 			],
 			"after": [
 				{
 					"name": "{{name}}",
+					"image": "face-mae",
 					"text": "Pronto {{player}}, já que você terminou seus trabalhos pode lavar a louça pra mim?",
-					"giveQuest": [2],
+					"giveQuest": ["q02"],
 					"registerLog": [
 						{
 							"key": "q01",
@@ -51,12 +49,14 @@
 				},
 				{
 					"name": "{{player}}",
+					"image": "face-player",
 					"text": "Claro mãe!"
 				}
 			],
 			"inProgress": [
 				{
 					"name": "{{name}}",
+					"image": "face-mae",
 					"text": "{{player}}, está aqui o dinheiro"
 				}
 			]

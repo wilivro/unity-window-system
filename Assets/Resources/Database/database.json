@@ -12,6 +12,12 @@
 			"path": "Database/Quests/",
 			"filename": "quest1",
 			"label": "Buscando Conhecimento"
+		},
+		{
+			"key": "q02",
+			"path": "Database/Quests/",
+			"filename": "quest1",
+			"label": "Meus afazeres"
 		}
 	],
 
@@ -32,6 +38,31 @@
 			"key": "i03",
 			"path": "Database/Items/",
 			"filename": "cartilha"
+		}
+	],
+
+	"images": [
+		{
+			"key": "face-mae",
+			"source": "Database/Images/faces",
+			"index": 0
+		},
+		{
+			"key": "face-tio",
+			"source": "Database/Images/faces",
+			"index": 1
+		},
+		{
+			"key": "face-player",
+			"source": "Database/Images/faces",
+			"index": 2
+		}
+	],
+
+	"warps": [
+		{
+			"key": "porta1-casa1",
+			"path": "Database/Warps/w01"
 		}
 	]
 }

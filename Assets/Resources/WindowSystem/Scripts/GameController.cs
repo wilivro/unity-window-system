@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour {
 
 	GameObject wrapper;
 
-	void Start () {
+	void Awake () {
 		database  = new Database("Database/database");
 		language  = new Scene.Language("pt-br");
 		journal   = new Journal(transform);

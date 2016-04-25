@@ -139,6 +139,24 @@ namespace Window
 		}
 	};
 
+	public class Span : WindowBase
+	{
+		public Span(Transform _canvas) : base(_canvas) {
+			prefab = Resources.Load("WindowSystem/Prefabs/Span/Span") as GameObject;
+
+		}
+
+		public void Open(string _text, Vector3 _n) {
+			base.Open(true);
+			Follow(_n);
+			instance.transform.Find("Text").GetComponent<Text>().text = _text;
+		}
+
+		public void Follow(Vector3 _n) {
+			if(instance == null) return;
+			instance.transform.position = _n;
+		}
+	};
 
 	public class Config    : WindowBase {};
 	public class PauseGame : WindowBase {};

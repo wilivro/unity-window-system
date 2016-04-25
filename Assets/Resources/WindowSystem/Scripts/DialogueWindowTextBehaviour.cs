@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class DialogueWindowTextBehaviour : MonoBehaviour {
 
@@ -15,9 +16,11 @@ public class DialogueWindowTextBehaviour : MonoBehaviour {
 	void Awake () {
 		text = transform.Find("Text").GetComponent<Text>();
 
+		#if !UNITY_STANDALONE
+		Debug.Log("Ai");
 		bt = transform.Find("Next").GetComponent<Button>();
-
 		bt.onClick.AddListener(delegate {NextButton();});
+		#endif
 
 		endAnim = false;
 		endWrite = false;
@@ -55,6 +58,7 @@ public class DialogueWindowTextBehaviour : MonoBehaviour {
 	}
 
 	void NextButton() {
+		Debug.Log("Foi");
 		if(endWrite) {
 			Transform chs = transform.parent.Find("Choices");
 
@@ -67,4 +71,12 @@ public class DialogueWindowTextBehaviour : MonoBehaviour {
 
 		writeSpeed = (writeSpeed == 0.1f) ? 0.01f : 0.1f;
 	}
+
+	#if UNITY_STANDALONE
+	void Update() {
+		if(CrossPlatformInputManager.GetButtonDown("Submit")){
+			NextButton();
+		}
+	}
+	#endif
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using System.Collections;
 using UnityStandardAssets.CrossPlatformInput;
 using Rpg;
@@ -11,28 +12,54 @@ public class PlayerBehaviour : MonoBehaviour, IControlable, IInteractable {
 	Rigidbody2D rbody;
 	GameObject interactable;
 
+	private UnityAction<object[]> OnDialogueStart;
+	private UnityAction<object[]> OnDialogueEnd;
+
+	bool busy;
+
 	void Start () {
 		self = new Rpg.Player("Teste");
 		self.Save();
 		rbody = GetComponent<Rigidbody2D>();
+
+		OnDialogueStart = new UnityAction<object[]> (OnDialogueStartCallback);
+		EventManager.AddListener("PlayerDialogueStart", OnDialogueStart);
+
+		OnDialogueEnd = new UnityAction<object[]> (OnDialogueEndCallback);
+		EventManager.AddListener("PlayerDialogueEnd", OnDialogueEnd);
 	}
 	
 	// Update is called once per frame
+
+	void OnDialogueStartCallback(object[] param) {
+		busy = true;
+	}
+	void OnDialogueEndCallback(object[] param) {
+		busy = false;
+	}
+
 	void Update () {
+		if(busy) return;
 		Control();
 		Interact(interactable);
 	}
 
-	public void OnInteract(GameObject from) {
+	public void OnInteractEnter(GameObject from) {
 
 	}
+
+	public void OnInteractExit(GameObject from){}
 
 	public void Interact(GameObject to) {
 		if(to == null) return;
 
 		if(CrossPlatformInputManager.GetButtonDown("Submit")){
-			to.SendMessage("OnInteract", gameObject);
+			to.SendMessage("OnInteractEnter", gameObject);
 		}
+	}
+
+	public bool AutoInteract() {
+		return false;
 	}
 
 	public void Control() {
@@ -50,12 +77,19 @@ public class PlayerBehaviour : MonoBehaviour, IControlable, IInteractable {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
+		if(interactable != null) return;
 		if(IsInteractable(other.gameObject)) {
 			interactable = other.gameObject;
+			if(interactable.GetComponent<IInteractable>().AutoInteract()) {
+				interactable.SendMessage("OnInteractEnter", gameObject);
+			}
 		}
 	}
 
 	void OnTriggerExit2D(Collider2D other){
+		try {
+			interactable.SendMessage("OnInteractExit", gameObject);
+		} catch {}
 		interactable = null;
 	}
 

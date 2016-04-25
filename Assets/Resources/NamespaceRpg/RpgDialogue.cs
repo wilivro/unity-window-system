@@ -44,6 +44,7 @@ namespace Rpg
 			public int[] completeQuest;
 			public string[] check;
 			public LogData[] registerLog;
+			public string image;
 		}
 
 		[Serializable]
@@ -316,6 +317,7 @@ namespace Rpg
 				base.Open();
 				dialogue = _d;
 				page = 0;
+				EventManager.Trigger("PlayerDialogueStart");
 				ShowSpeech();
 			}
 
@@ -332,11 +334,18 @@ namespace Rpg
 
 				if(page >= dialogue.Length) {
 					dialogue = null;
+					EventManager.Trigger("PlayerDialogueEnd");
 					Close();
 					return;
 				};
 
 				instance.transform.Find("Name").Find("Text").GetComponent<Text>().text = FormatText(dialogue[page].name);
+
+				DatabaseImage dbi = (DatabaseImage) GameController.database.Find(dialogue[page].image);
+				Debug.Log(dbi.source);
+				Sprite[] baseI = Resources.LoadAll<Sprite>(dbi.source);
+				Debug.Log(baseI.Length);
+				instance.transform.Find("Image").GetComponent<Image>().sprite = baseI[dbi.index];
 
 				text = instance.transform.Find("Window").gameObject;
 				text.SendMessage("Write", FormatText(dialogue[page].text));

@@ -15,8 +15,24 @@ public class WarpBehaviour : MonoBehaviour, IInteractable {
 		self = new Warp(name);
 	}
 
-	public void OnInteract(GameObject from) {
-		self.dialogueControl.Start();
+	public void OnInteractEnter(GameObject from) {
+		if(self.Ready()) {
+			Debug.Log("TP");
+			return;
+		}
+
+		Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
+		screenPos += new Vector3(0, 45, 0);
+
+		self.span.Open(self.message, screenPos);
+	}
+
+	public void OnInteractExit(GameObject from){
+		self.span.Close();
+	}
+
+	public bool AutoInteract() {
+		return true;
 	}
 
 	public void Interact(GameObject to) {}

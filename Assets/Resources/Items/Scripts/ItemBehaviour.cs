@@ -16,7 +16,7 @@ public class ItemBehaviour : MonoBehaviour, IInteractable {
 		self = new Item(name);
 	}
 
-	public void OnInteract(GameObject from) {
+	public void OnInteractEnter(GameObject from) {
 		if(self.preRequirements != null && !Log.HasKey(self.preRequirements)) return;
 		
 		if(self.book != null && self.autoOpen) {
@@ -31,6 +31,12 @@ public class ItemBehaviour : MonoBehaviour, IInteractable {
 
 		if(!self.permanent) Destroy(gameObject);
 	}
+
+	public bool AutoInteract() {
+		return false;
+	}
+
+	public void OnInteractExit(GameObject from){}
 
 	public void Interact(GameObject to) {}
 }

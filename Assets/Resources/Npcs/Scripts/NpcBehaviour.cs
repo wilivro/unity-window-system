@@ -15,9 +15,15 @@ public class NpcBehaviour : MonoBehaviour, IInteractable {
 		self = new Npc(name);
 	}
 
-	public void OnInteract(GameObject from) {
+	public void OnInteractEnter(GameObject from) {
 		self.dialogueControl.Start();
 	}
+
+	public bool AutoInteract() {
+		return false;
+	}
+
+	public void OnInteractExit(GameObject from){}
 
 	public void Interact(GameObject to) {}
 }

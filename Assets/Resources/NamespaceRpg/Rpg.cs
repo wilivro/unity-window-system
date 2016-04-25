@@ -19,8 +19,10 @@ namespace Rpg
 
 	public interface IInteractable
 	{
-		void OnInteract(GameObject from);
+		void OnInteractEnter(GameObject from);
+		void OnInteractExit(GameObject from);
 		void Interact(GameObject to);
+		bool AutoInteract();
 	}
 
 	public interface IControlable
@@ -185,20 +187,23 @@ namespace Rpg
 	public class Warp
 	{
 		public string[] requirements;
+		public string message;
 
-		public DialogueControl dialogueControl;
+		public Span span;
 
 		public Warp() {
-
+			
 		}
 
 		public Warp(string id) {
-			//string path = ()(GameController.database.Find(id)).SelectPath();
+			DatabaseWarp dbw = ((DatabaseWarp)GameController.database.Find(id));
+			string path = dbw.GetPath();
 
-			//TextAsset questFile = Resources.Load(path) as TextAsset;
-			//JsonUtility.FromJsonOverwrite(questFile.text, this);
+			TextAsset questFile = Resources.Load(path) as TextAsset;
+			JsonUtility.FromJsonOverwrite(questFile.text, this);
 
-			//dialogueControl = new DialogueControl(dialogue, dummyDialogue, name);
+			Transform gc = UnityEngine.GameObject.Find("GameController").transform;
+			span = new Span(gc);
 
 		}
 
@@ -286,8 +291,38 @@ namespace Rpg
 	}
 
 	[Serializable]
-	public class DatabaseFace : DatabaseItem
+	public class DatabaseImage : IDatabaseItem
 	{
+		public string key;
+		public string source;
+		public int index;
+
+		public string GetKey() {
+			return key;
+		}
+
+		public string GetSource(){
+			return source;
+		}
+
+		public int GetIndex(){
+			return index;
+		}
+	}
+
+	[Serializable]
+	public class DatabaseWarp : IDatabaseItem
+	{
+		public string key;
+		public string path;
+
+		public string GetKey() {
+			return key;
+		}
+
+		public string GetPath() {
+			return path;
+		}
 	}
 
 	public interface IDatabaseItem
@@ -299,8 +334,9 @@ namespace Rpg
 	{
 		public DatabaseDictionary[] data;
 		public DatabaseQuest[] quests;
-		//public DatabaseFace[] faces;
+		public DatabaseImage[] images;
 		public DatabaseItem[] items;
+		public DatabaseWarp[] warps;
 
 		public DatabaseJson(string _path) {
 			TextAsset file = Resources.Load(_path) as TextAsset;
@@ -324,8 +360,6 @@ namespace Rpg
 
 			foreach (FieldInfo fieldInfo in fields)
 			{
-			    Debug.Log("Field: " + fieldInfo.Name);
-			    Debug.Log(typeof(DatabaseJson).GetField(fieldInfo.Name).GetValue(json));
 			    IDatabaseItem[] property = (IDatabaseItem[])(typeof(DatabaseJson).GetField(fieldInfo.Name).GetValue(json));
 			    List<IDatabaseItem> list = property.ToList();
 
